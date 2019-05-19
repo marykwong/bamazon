@@ -17,7 +17,6 @@ connection.connect(function (err) {
   if (err) throw err
   // run the start function after the connection is made to show what's on sale
   start()
-  connection.end()
 })
 
 //function to display what's on sale
@@ -31,7 +30,7 @@ function start(){
     if (err) throw err
     for (var i = 0; i < res.length; i++) {
       //push to table
-      productTable.push([res[i].sku, res[i].product_name, `$${res[i].price}`]);
+      productTable.push([res[i].id, res[i].product_name, `$${res[i].price}`]);
     
     }
     //display
@@ -44,7 +43,7 @@ function start(){
 //function to ask user for id and quantity
 function askID(){
 	inquirer.prompt([{
-		name: "itemID",
+		name: "id",
 		type: "input",
     message: "Please enter the Item ID for the product that you want.",
     //validate input
@@ -56,7 +55,7 @@ function askID(){
 		}
   }, 
   {
-		name: "stockQuantity",
+		name: "quantity",
 		type: "input",
     message: "How many units do you want?",
 		validate: function(value) {
@@ -65,7 +64,42 @@ function askID(){
 			}
 			return false
 		}
-	}]).then(function(answer) {
+  }
+  
+]).then(function(answer) {
+  //store quantity and id requests
+    var quantity = answer.quantity;
+    var itemID = answer.id;
+    //function to purchase
+    purchase(itemID, quantity);
+    
+    });
+};
 
+//function to handle purchase
+function purchase(id, quantityNeed){
+  //selection id = request id
+  connection.query('SELECT * FROM Products WHERE id = ' + id, function(error, response) {
+    if (error) throw err
+    //check if we have enough
+    if (quantityNeed <= response[0].stock_quantity){
+      var totalCost = response[0].price * quantityNeed;
+      console.log("Your total cost for " + quantityNeed + " " + response[0].product_name + " is " + totalCost.toFixed(2) + ". Thank you for your Business!");
+      connection.query('UPDATE Products SET stock_quantity = stock_quantity - ' + quantityNeed + ' WHERE id = ' + id);
+    } else
+    {
+      console.log("Insufficient quantity! We don't have enough " + response[0].product_name + " to fulfill your order.");
+  };
+  buyMore();
   });
+}
+
+function buyMore(){
+  inquirer.prompt([{
+    type: "confirm",
+    name: "more",
+    message: "Do you want to purchase something else?"
+  }]).then(function(answer){
+    
+  })
 }
