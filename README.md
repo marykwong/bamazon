@@ -1,3 +1,7 @@
 # bamazon
 
-<video width="320" height="240" controls><source src="video.mov" type="video/mp4"></video>
+This is a command line Node app that will take in orders from customers and deplete stock from the store's inventory. 
+
+# Getting Started
+
+![how it works](first.giv)
