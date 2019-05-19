@@ -84,22 +84,30 @@ function purchase(id, quantityNeed){
     //check if we have enough
     if (quantityNeed <= response[0].stock_quantity){
       var totalCost = response[0].price * quantityNeed;
-      console.log("Your total cost for " + quantityNeed + " " + response[0].product_name + " is " + totalCost.toFixed(2) + ". Thank you for your Business!");
+      console.log("Your total cost for " + quantityNeed + " " + response[0].product_name + " is " + "$"+totalCost.toFixed(2) + ". Thank you for your Business!");
       connection.query('UPDATE Products SET stock_quantity = stock_quantity - ' + quantityNeed + ' WHERE id = ' + id);
     } else
     {
+      //return this is we don't have enough
       console.log("Insufficient quantity! We don't have enough " + response[0].product_name + " to fulfill your order.");
   };
+  //prompt to buy more
   buyMore();
   });
 }
 
+//function to prompt the user if they want to buy something else
 function buyMore(){
   inquirer.prompt([{
     type: "confirm",
     name: "more",
     message: "Do you want to purchase something else?"
   }]).then(function(answer){
-    
+    if (answer.more === true){
+      start();
+    } else {
+      //end connection when they don't want to buy more
+      connection.end();
+    }
   })
 }
